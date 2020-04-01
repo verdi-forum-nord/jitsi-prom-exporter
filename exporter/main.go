@@ -25,7 +25,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -147,9 +146,13 @@ func main() {
 	jid := xmppUser + "@" + xmppAuthDomain
 	address := xmppServer + ":" + xmppPort
 	config := xmpp.Config{
-		Address:      address,
+		TransportConfiguration: xmpp.TransportConfiguration{
+			Address:   address,
+			Domain:    xmppAuthDomain,
+			TLSConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 		Jid:          jid,
-		Password:     xmppPw,
+		Credential:   xmpp.Password(xmppPw),
 		StreamLogger: os.Stdout,
 		Insecure:     true,
 		TLSConfig:    &tls.Config{InsecureSkipVerify: true},
@@ -261,7 +264,7 @@ func postConnect(s xmpp.Sender) {
 }
 
 func connectClient(c xmpp.Config, r *xmpp.Router) {
-	client, err := xmpp.NewClient(c, r)
+	client, err := xmpp.NewClient(&c, r, errorHandler)
 	if err != nil {
 		fmt.Printf("unable to create client: %s\n", err.Error())
 		signals <- iFail
@@ -281,4 +284,8 @@ func connectClient(c xmpp.Config, r *xmpp.Router) {
 	fmt.Println("XMPP connection closed, exiting.")
 	signals <- iExit
 	return
+}
+
+func errorHandler(err error) {
+	signals <- iFail
 }
