@@ -155,7 +155,6 @@ func main() {
 		Credential:   xmpp.Password(xmppPw),
 		StreamLogger: os.Stdout,
 		Insecure:     true,
-		TLSConfig:    &tls.Config{InsecureSkipVerify: true},
 	}
 
 	router := xmpp.NewRouter()
