@@ -229,7 +229,7 @@ func handlePresence(s xmpp.Sender, p stanza.Packet) {
 		}
 
 		//we want to keep track of jvbs across their reconnects of autoscaled sets
-		jvbCollector.Update(strings.Split(jvbJid, "@")[0], stats)
+		jvbCollector.Update(jvbJid, stats)
 	}
 }
 
